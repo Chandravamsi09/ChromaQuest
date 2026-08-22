@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChromaQuest - 2D Action RPG & Game Engine Suite</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;900&family=Press+Start+2P&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div id="app-container">
+        <header id="game-header">
+            <div class="logo-container">
+                <span class="logo-icon">⚡</span>
+                <h1 class="logo-title">ChromaQuest</h1>
+                <span class="badge">v1.0.0</span>
+                <span class="badge loc-badge">Action RPG</span>
+            </div>
+            <nav id="header-nav">
+                <button id="btn-tab-game" class="nav-btn active">🎮 Game View</button>
+                <button id="btn-tab-editor" class="nav-btn">🎨 Map Editor</button>
+                <button id="btn-tab-tests" class="nav-btn">🧪 Unit Tests</button>
+                <button id="btn-tab-audio" class="nav-btn">🎵 Audio Synth</button>
+            </nav>
+            <div id="header-stats">
+                <div class="stat-pill"><span class="stat-label">FPS:</span> <span id="fps-display">60</span></div>
+                <div class="stat-pill"><span class="stat-label">Entities:</span> <span id="entity-count">0</span></div>
+            </div>
+        </header>
+
+        <main id="workspace">
+            <section id="game-view" class="view-panel active">
+                <div id="canvas-wrapper">
+                    <canvas id="game-canvas" width="1280" height="720"></canvas>
+                </div>
+            </section>
+        </main>
+    </div>
+    <script type="module" src="src/core/Engine.js"></script>
+</body>
+</html>

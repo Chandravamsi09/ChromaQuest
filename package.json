@@ -1,0 +1,19 @@
+{
+    "name": "chromaquest",
+    "version": "1.0.0",
+    "description": "50k+ LOC 2D Action RPG, Game Engine, and Map Editor Suite",
+    "main": "index.html",
+    "scripts": {
+        "start": "npx serve .",
+        "test": "node tests/testRunner.js"
+    },
+    "keywords": [
+        "game-engine",
+        "2d-rpg",
+        "ecs",
+        "pathfinding",
+        "audio-synth"
+    ],
+    "author": "ChromaQuest Team",
+    "license": "MIT"
+}
