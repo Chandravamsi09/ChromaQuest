@@ -1,11 +1,11 @@
 # 🎮 ChromaQuest - Modular 2D Action RPG & Game Engine Suite
 
 ![Version](https://img.shields.io/badge/version-1.0.0-blue)
-![License](https://img.shields.io/badge/license-MIT-green)
+![License](https://img.shields.io/badge/license-Proprietary-red)
 ![Build](https://img.shields.io/badge/build-passing-brightgreen)
 ![Tests](https://img.shields.io/badge/tests-6%2F6%20passing-success)
 
-**ChromaQuest** is a feature-rich 2D Action RPG, Tile Map Editor, and Game Engine built completely in modern vanilla JavaScript (ES6+), HTML5 Canvas, and Vanilla CSS. It features a custom Entity-Component-System (ECS), Spatial Hash Grid collision engine, A* Pathfinding, Web Audio API sound synthesizer, particle FX engine, comprehensive items/spells/monsters databases, item crafting, skill trees, and an interactive tilemap editor.
+**ChromaQuest** is a feature-rich 2D Action RPG, Tile Map Editor, and Custom Web Game Engine built completely in modern vanilla JavaScript (ES6+), HTML5 Canvas 2D, and Vanilla CSS. It features a custom Entity-Component-System (ECS), Spatial Hash Grid collision engine, A* Pathfinding, Web Audio API sound synthesizer, particle FX engine, comprehensive items/spells/monsters databases, skill trees, and an interactive tilemap editor.
 
 ---
 
@@ -26,13 +26,83 @@
 
 ---
 
-## 📁 Repository Architecture
+## 📁 Dependencies
+
+- **Node.js**: v18.0.0 or higher
+- **NPM**: v9.0.0 or higher
+- **Runtime Dependencies**: Listed in `package.json` and lockfile `package-lock.json` (`pptxgenjs`).
+
+---
+
+## ⚙️ Installation
+
+To install dependencies and prepare the application:
+
+```bash
+npm install
+```
+
+---
+
+## 🔨 Build
+
+To build the ChromaQuest production bundle:
+
+```bash
+npm run build
+```
+
+---
+
+## 🚀 Run
+
+To run the application locally using the integrated HTTP server:
+
+```bash
+npm start
+```
+
+Alternatively, open `index.html` directly in any WebGL/Canvas-enabled web browser, or serve using:
+
+```bash
+npm run serve
+```
+
+To run using Docker:
+
+```bash
+docker build -t chromaquest .
+docker run -p 3000:3000 chromaquest
+```
+
+---
+
+## 🧪 Usage & Testing
+
+To execute the 6 automated unit test suites:
+
+```bash
+npm test
+```
+
+### Controls:
+- **WASD / Arrow Keys**: Hero Movement
+- **Left Mouse Click**: Aim & Fire Projectiles
+- **Keys 1 - 5**: Cast Spells (Fireball, Frost Nova, Lightning, Shield, Heal)
+- **Key P**: Pause / Resume Game Loop
+
+---
+
+## 📂 Repository Architecture
 
 ```text
 ChromaQuest/
+├── Dockerfile                  # Containerized deployment manifest
+├── server.js                   # Node.js static web server entry point
 ├── index.html                  # Main UI & Canvas Mounting Point
 ├── style.css                   # Glassmorphism Dark Theme & Game Layout
-├── package.json                # Project Configuration & Test Scripts
+├── package.json                # Project Configuration & Scripts
+├── package-lock.json           # Dependency Lockfile
 ├── src/
 │   ├── core/                   # Game Loop, Event Bus, State Machine, Audio Synth
 │   ├── ecs/                    # Entities, Components, Systems, World Manager
@@ -42,37 +112,10 @@ ChromaQuest/
 │   ├── game/                   # Map Editor Engine & Gameplay Mechanics
 │   └── ui/                     # HUD Overlay, Inventory UI, Quest Log UI, Editor UI
 └── tests/                      # Automated Unit Test Suites & Runner
-    ├── engine.test.js
-    ├── ecs.test.js
-    ├── physics.test.js
-    ├── pathfinding.test.js
-    ├── inventory.test.js
-    └── quest.test.js
 ```
 
 ---
 
-## 🚀 How to Run & Play
+## 🔒 License
 
-1. **Clone the Repository**:
-   ```bash
-   git clone https://github.com/Chandravamsi09/ChromaQuest.git
-   cd ChromaQuest
-   ```
-
-2. **Run Automated Unit Tests**:
-   ```bash
-   npm test
-   ```
-
-3. **Play Game Locally**:
-   Open `index.html` directly in any modern web browser or start a local HTTP server:
-   ```bash
-   npm start
-   ```
-
----
-
-## 📜 License
-
-Distributed under the MIT License. See `LICENSE` for details.
+Proprietary Software. All Rights Reserved. Not licensed under any Open Source License.

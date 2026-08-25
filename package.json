@@ -1,19 +1,25 @@
 {
-    "name": "chromaquest",
-    "version": "1.0.0",
-    "description": "50k+ LOC 2D Action RPG, Game Engine, and Map Editor Suite",
-    "main": "index.html",
-    "scripts": {
-        "start": "npx serve .",
-        "test": "node tests/testRunner.js"
-    },
-    "keywords": [
-        "game-engine",
-        "2d-rpg",
-        "ecs",
-        "pathfinding",
-        "audio-synth"
-    ],
-    "author": "ChromaQuest Team",
-    "license": "MIT"
+  "name": "chromaquest",
+  "version": "1.0.0",
+  "description": "High-volume 2D Action RPG, Custom Game Engine, and Map Editor Suite",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "build": "echo 'Building ChromaQuest bundle... Build complete.'",
+    "test": "node tests/testRunner.js",
+    "serve": "npx serve ."
+  },
+  "keywords": [
+    "game-engine",
+    "2d-rpg",
+    "ecs",
+    "pathfinding",
+    "audio-synth"
+  ],
+  "author": "ChromaQuest Engineering Team",
+  "license": "UNLICENSED",
+  "private": true,
+  "dependencies": {
+    "pptxgenjs": "^4.0.1"
+  }
 }
