@@ -8,6 +8,9 @@ export class Engine {
         this.running = false;
         this.isPaused = false;
 
+        // Mouse World Aim Coordinates
+        this.mousePos = { x: 640, y: 360 };
+
         // Player Attributes
         this.player = {
             x: 640,
@@ -102,11 +105,11 @@ export class Engine {
 
     initEntities() {
         const monsterDefs = [
-            { name: 'Goblin Scout', color: '#4ade80', size: 20, hp: 150, maxHp: 150, attack: 15, speed: 110, xp: 200, gold: 35 },
-            { name: 'Orc Brute', color: '#f87171', size: 30, hp: 350, maxHp: 350, attack: 30, speed: 80, xp: 350, gold: 60 },
-            { name: 'Skeleton Warrior', color: '#e2e8f0', size: 22, hp: 200, maxHp: 200, attack: 22, speed: 100, xp: 250, gold: 45 },
-            { name: 'Fire Elemental', color: '#fb923c', size: 24, hp: 280, maxHp: 280, attack: 25, speed: 120, xp: 300, gold: 50 },
-            { name: 'Void Wraith', color: '#c084fc', size: 26, hp: 320, maxHp: 320, attack: 28, speed: 90, xp: 320, gold: 55 }
+            { name: 'Goblin Scout', color: '#4ade80', size: 20, hp: 120, maxHp: 120, attack: 15, speed: 110, xp: 200, gold: 35 },
+            { name: 'Orc Brute', color: '#f87171', size: 30, hp: 250, maxHp: 250, attack: 30, speed: 80, xp: 350, gold: 60 },
+            { name: 'Skeleton Warrior', color: '#e2e8f0', size: 22, hp: 160, maxHp: 160, attack: 22, speed: 100, xp: 250, gold: 45 },
+            { name: 'Fire Elemental', color: '#fb923c', size: 24, hp: 200, maxHp: 200, attack: 25, speed: 120, xp: 300, gold: 50 },
+            { name: 'Void Wraith', color: '#c084fc', size: 26, hp: 220, maxHp: 220, attack: 28, speed: 90, xp: 320, gold: 55 }
         ];
 
         this.entities = [];
@@ -127,10 +130,10 @@ export class Engine {
                 speed: def.speed,
                 xp: def.xp,
                 gold: def.gold,
+                dead: false,
+                respawnTimer: 0,
                 frozenTimer: 0,
-                attackCd: 0,
-                targetX: 640,
-                targetY: 360
+                attackCd: 0
             });
         }
     }
@@ -139,7 +142,6 @@ export class Engine {
         window.addEventListener('keydown', (e) => {
             this.keys[e.code] = true;
 
-            // Key 'P' toggles Pause / Resume
             if (e.code === 'KeyP') {
                 this.togglePause();
             }
@@ -159,6 +161,12 @@ export class Engine {
 
         const canvas = document.getElementById('game-canvas');
         if (canvas) {
+            canvas.addEventListener('mousemove', (e) => {
+                const rect = canvas.getBoundingClientRect();
+                this.mousePos.x = e.clientX - rect.left;
+                this.mousePos.y = e.clientY - rect.top;
+            });
+
             canvas.addEventListener('click', (e) => {
                 if (this.isGameOver || this.isPaused) return;
                 const rect = canvas.getBoundingClientRect();
@@ -195,11 +203,11 @@ export class Engine {
         this.projectiles.push({
             x: this.player.x,
             y: this.player.y,
-            vx: (dx / dist) * 550,
-            vy: (dy / dist) * 550,
+            vx: (dx / dist) * 600,
+            vy: (dy / dist) * 600,
             color: '#38bdf8',
             size: 8,
-            damage: 50,
+            damage: 60,
             life: 2.0
         });
         this.playAudioSynth('spell');
@@ -222,39 +230,41 @@ export class Engine {
         skill.currentCd = skill.cd;
         this.playAudioSynth(skillName);
 
+        const targetX = this.mousePos.x;
+        const targetY = this.mousePos.y;
+        const baseAngle = Math.atan2(targetY - this.player.y, targetX - this.player.x);
+
         if (skillName === 'fireball') {
-            const angles = [-0.2, 0, 0.2];
-            for (const offsetAngle of angles) {
-                const angle = Math.atan2(this.player.y - 360, this.player.x - 640) + offsetAngle;
+            const offsets = [-0.25, 0, 0.25];
+            for (const off of offsets) {
+                const angle = baseAngle + off;
                 this.projectiles.push({
                     x: this.player.x,
                     y: this.player.y,
-                    vx: Math.cos(angle) * 500,
-                    vy: Math.sin(angle) * 500,
+                    vx: Math.cos(angle) * 550,
+                    vy: Math.sin(angle) * 550,
                     color: '#fb923c',
                     size: 12,
-                    damage: 65,
+                    damage: 75,
                     life: 2.0
                 });
             }
             this.spawnParticles(this.player.x, this.player.y, '#fb923c', 20);
         } else if (skillName === 'frost') {
             for (const e of this.entities) {
+                if (e.dead) continue;
                 const dist = Math.hypot(e.x - this.player.x, e.y - this.player.y);
-                if (dist <= 250) {
+                if (dist <= 260) {
                     e.frozenTimer = 2.5;
-                    e.hp = Math.max(0, e.hp - 45);
-                    this.addFloater(e.x, e.y - 20, '-45 FROZEN!', '#38bdf8');
-                    this.spawnParticles(e.x, e.y, '#38bdf8', 15);
+                    this.damageMonster(e, 55, '#38bdf8', '-55 FROZEN!');
                 }
             }
             this.spawnParticles(this.player.x, this.player.y, '#38bdf8', 40);
         } else if (skillName === 'lightning') {
-            const sorted = [...this.entities].sort((a, b) => Math.hypot(a.x - this.player.x, a.y - this.player.y) - Math.hypot(b.x - this.player.x, b.y - this.player.y));
-            const targets = sorted.slice(0, 3);
+            const aliveMonsters = this.entities.filter(e => !e.dead).sort((a, b) => Math.hypot(a.x - this.player.x, a.y - this.player.y) - Math.hypot(b.x - this.player.x, b.y - this.player.y));
+            const targets = aliveMonsters.slice(0, 3);
             for (const t of targets) {
-                t.hp = Math.max(0, t.hp - 90);
-                this.addFloater(t.x, t.y - 20, '⚡ -90 CRIT!', '#facc15');
+                this.damageMonster(t, 110, '#facc15', '⚡ -110 CRIT!');
                 this.spawnParticles(t.x, t.y, '#facc15', 25);
             }
         } else if (skillName === 'shield') {
@@ -266,6 +276,26 @@ export class Engine {
             this.player.hp = Math.min(this.player.maxHp, this.player.hp + 250);
             this.addFloater(this.player.x, this.player.y - 30, '+250 HEAL!', '#4ade80');
             this.spawnParticles(this.player.x, this.player.y, '#4ade80', 35);
+        }
+    }
+
+    damageMonster(monster, damage, color, text = null) {
+        if (monster.dead) return;
+        monster.hp = Math.max(0, monster.hp - damage);
+        this.addFloater(monster.x, monster.y - 20, text || `-${damage}`, color || '#facc15');
+        this.spawnParticles(monster.x, monster.y, color || '#ef4444', 12);
+        this.playAudioSynth('hit');
+
+        // Check Monster Death
+        if (monster.hp <= 0) {
+            monster.dead = true;
+            monster.respawnTimer = 5.0; // Stay dead for 5 seconds!
+
+            this.addFloater(monster.x, monster.y - 35, `☠️ SLAIN! +${monster.xp} XP`, '#4ade80');
+            this.spawnParticles(monster.x, monster.y, '#4ade80', 35);
+            this.spawnLoot(monster.x, monster.y, monster.gold);
+            this.gainXp(monster.xp);
+            this.playAudioSynth('levelup');
         }
     }
 
@@ -299,7 +329,7 @@ export class Engine {
             gold: goldAmount,
             item: randomItem,
             color: '#fbbf24',
-            size: 10
+            size: 12
         });
     }
 
@@ -360,7 +390,6 @@ export class Engine {
     }
 
     initUI() {
-        // Tab Navigation
         const tabs = [
             { btn: 'btn-tab-game', view: 'game-view' },
             { btn: 'btn-tab-editor', view: 'editor-view' },
@@ -380,7 +409,6 @@ export class Engine {
             }
         });
 
-        // Pause Button Click Listeners
         const headerPauseBtn = document.getElementById('btn-pause-header');
         if (headerPauseBtn) headerPauseBtn.addEventListener('click', () => this.togglePause());
 
@@ -390,7 +418,6 @@ export class Engine {
         const resumeGameBtn = document.getElementById('btn-resume-game');
         if (resumeGameBtn) resumeGameBtn.addEventListener('click', () => this.togglePause());
 
-        // Skill Slots Click Handlers
         document.querySelectorAll('.skill-slot').forEach(slot => {
             slot.addEventListener('click', () => {
                 const sName = slot.getAttribute('data-skill');
@@ -398,7 +425,6 @@ export class Engine {
             });
         });
 
-        // Respawn Button
         const respawnBtn = document.getElementById('btn-respawn');
         if (respawnBtn) {
             respawnBtn.addEventListener('click', () => {
@@ -411,7 +437,6 @@ export class Engine {
             });
         }
 
-        // Apply Map Editor to Game
         const applyMapBtn = document.getElementById('btn-apply-map');
         if (applyMapBtn) {
             applyMapBtn.addEventListener('click', () => {
@@ -420,7 +445,6 @@ export class Engine {
             });
         }
 
-        // Audio Synth Buttons
         const soundBtns = [
             { id: 'btn-sfx-spell', type: 'fireball' },
             { id: 'btn-sfx-hit', type: 'hit' },
@@ -435,7 +459,6 @@ export class Engine {
             }
         });
 
-        // Run All Tests Live Execution
         const runTestsBtn = document.getElementById('btn-run-tests');
         if (runTestsBtn) {
             runTestsBtn.addEventListener('click', () => {
@@ -454,7 +477,6 @@ export class Engine {
             });
         }
 
-        // Modals
         const modalOverlay = document.getElementById('modal-overlay');
         const modalBody = document.getElementById('modal-body-content');
         const modalTitle = document.getElementById('modal-title');
@@ -488,9 +510,9 @@ export class Engine {
                 modalTitle.innerText = "📜 Skill Tree & Talents";
                 modalBody.innerHTML = `
                     <div style="display:flex; flex-direction:column; gap:12px;">
-                        <div style="padding:12px; background:rgba(255,255,255,0.05); border-radius:8px;">🔥 <strong>Fireball Burst</strong> (Cost: 25 MP) - Fires 3 explosive fireballs dealing 65 damage</div>
+                        <div style="padding:12px; background:rgba(255,255,255,0.05); border-radius:8px;">🔥 <strong>Fireball Burst</strong> (Cost: 25 MP) - Fires 3 explosive fireballs dealing 75 damage</div>
                         <div style="padding:12px; background:rgba(255,255,255,0.05); border-radius:8px;">❄️ <strong>Frost Nova</strong> (Cost: 40 MP) - Freezes all nearby enemies for 2.5 seconds</div>
-                        <div style="padding:12px; background:rgba(255,255,255,0.05); border-radius:8px;">⚡ <strong>Lightning Strike</strong> (Cost: 50 MP) - Strikes 3 nearest targets for 90 critical damage</div>
+                        <div style="padding:12px; background:rgba(255,255,255,0.05); border-radius:8px;">⚡ <strong>Lightning Strike</strong> (Cost: 50 MP) - Strikes 3 nearest targets for 110 critical damage</div>
                         <div style="padding:12px; background:rgba(255,255,255,0.05); border-radius:8px;">🛡️ <strong>Aegis Shield</strong> (Cost: 30 MP) - Absorbs 100% incoming damage for 4 seconds</div>
                         <div style="padding:12px; background:rgba(255,255,255,0.05); border-radius:8px;">🧪 <strong>Holy Heal</strong> (Cost: 60 MP) - Restores +250 HP instantly</div>
                     </div>
@@ -583,6 +605,11 @@ export class Engine {
             if (popupFpsElem) popupFpsElem.innerText = this.currentFps;
         }
 
+        // Active Entity Count in Header
+        const activeEntitiesCount = this.entities.filter(e => !e.dead).length;
+        const entityCountElem = document.getElementById('entity-count');
+        if (entityCountElem) entityCountElem.innerText = activeEntitiesCount;
+
         // 1. Cooldown & Shield Timers
         for (const sKey in this.skills) {
             const skill = this.skills[sKey];
@@ -640,8 +667,21 @@ export class Engine {
         this.player.x = Math.max(30, Math.min(1250, this.player.x));
         this.player.y = Math.max(30, Math.min(690, this.player.y));
 
-        // 3. Update Monsters
+        // 3. Update Monsters (including Respawn Timers)
         for (const e of this.entities) {
+            if (e.dead) {
+                e.respawnTimer -= dt;
+                if (e.respawnTimer <= 0) {
+                    // Respawn Monster
+                    e.dead = false;
+                    e.hp = e.maxHp;
+                    e.x = 180 + Math.random() * 900;
+                    e.y = 120 + Math.random() * 480;
+                    this.spawnParticles(e.x, e.y, '#38bdf8', 20);
+                }
+                continue;
+            }
+
             if (e.frozenTimer > 0) {
                 e.frozenTimer -= dt;
                 continue;
@@ -677,7 +717,7 @@ export class Engine {
             if (e.attackCd > 0) e.attackCd -= dt;
         }
 
-        // 4. Update Projectiles
+        // 4. Update Projectiles & Hit Collisions
         for (let i = this.projectiles.length - 1; i >= 0; i--) {
             const p = this.projectiles[i];
             p.x += p.vx * dt;
@@ -685,25 +725,11 @@ export class Engine {
             p.life -= dt;
 
             for (const e of this.entities) {
+                if (e.dead) continue;
                 const dist = Math.hypot(e.x - p.x, e.y - p.y);
                 if (dist < e.size / 2 + p.size) {
-                    e.hp -= p.damage;
-                    this.addFloater(e.x, e.y - 20, `-${p.damage}`, '#facc15');
-                    this.spawnParticles(e.x, e.y, p.color, 12);
-                    this.playAudioSynth('hit');
+                    this.damageMonster(e, p.damage, p.color);
                     p.life = 0;
-
-                    if (e.hp <= 0) {
-                        this.addFloater(e.x, e.y - 30, `+${e.xp} XP!`, '#4ade80');
-                        this.spawnParticles(e.x, e.y, '#4ade80', 25);
-                        this.spawnLoot(e.x, e.y, e.gold);
-                        this.gainXp(e.xp);
-                        this.playAudioSynth('levelup');
-
-                        e.hp = e.maxHp;
-                        e.x = 180 + Math.random() * 900;
-                        e.y = 120 + Math.random() * 480;
-                    }
                     break;
                 }
             }
@@ -711,7 +737,7 @@ export class Engine {
             if (p.life <= 0) this.projectiles.splice(i, 1);
         }
 
-        // 5. Update Loot
+        // 5. Update Loot Collection
         for (let i = this.lootDrops.length - 1; i >= 0; i--) {
             const loot = this.lootDrops[i];
             const dist = Math.hypot(this.player.x - loot.x, this.player.y - loot.y);
@@ -856,8 +882,10 @@ export class Engine {
                 ctx.globalAlpha = 1.0;
             }
 
-            // Render Monsters
+            // Render Monsters (Only alive ones)
             for (const e of this.entities) {
+                if (e.dead) continue; // Hidden while dead
+
                 ctx.fillStyle = e.frozenTimer > 0 ? '#38bdf8' : e.color;
                 ctx.beginPath();
                 ctx.arc(e.x, e.y, e.size / 2, 0, Math.PI * 2);
