@@ -64,6 +64,11 @@ export class Engine {
 
         // State Flags
         this.isGameOver = false;
+
+        // Smooth FPS Counter
+        this.fpsTimer = 0;
+        this.fpsFrameCounter = 0;
+        this.currentFps = 60;
     }
 
     init() {
@@ -197,7 +202,6 @@ export class Engine {
 
         // Execute Spell Logic & Visual FX
         if (skillName === 'fireball') {
-            // Fires 3 spreading explosive projectiles
             const angles = [-0.2, 0, 0.2];
             for (const offsetAngle of angles) {
                 const angle = Math.atan2(this.player.y - 360, this.player.x - 640) + offsetAngle;
@@ -214,7 +218,6 @@ export class Engine {
             }
             this.spawnParticles(this.player.x, this.player.y, '#fb923c', 20);
         } else if (skillName === 'frost') {
-            // Freezes all monsters within 250px radius
             for (const e of this.entities) {
                 const dist = Math.hypot(e.x - this.player.x, e.y - this.player.y);
                 if (dist <= 250) {
@@ -226,7 +229,6 @@ export class Engine {
             }
             this.spawnParticles(this.player.x, this.player.y, '#38bdf8', 40);
         } else if (skillName === 'lightning') {
-            // Strikes 3 nearest targets
             const sorted = [...this.entities].sort((a, b) => Math.hypot(a.x - this.player.x, a.y - this.player.y) - Math.hypot(b.x - this.player.x, b.y - this.player.y));
             const targets = sorted.slice(0, 3);
             for (const t of targets) {
@@ -235,13 +237,11 @@ export class Engine {
                 this.spawnParticles(t.x, t.y, '#facc15', 25);
             }
         } else if (skillName === 'shield') {
-            // Aegis Shield absorbs all incoming damage for 4 seconds
             this.player.shieldActive = true;
             this.player.shieldTimer = 4.0;
             this.addFloater(this.player.x, this.player.y - 30, 'SHIELD ACTIVE!', '#818cf8');
             this.spawnParticles(this.player.x, this.player.y, '#818cf8', 30);
         } else if (skillName === 'heal') {
-            // Restores +250 HP
             this.player.hp = Math.min(this.player.maxHp, this.player.hp + 250);
             this.addFloater(this.player.x, this.player.y - 30, '+250 HEAL!', '#4ade80');
             this.spawnParticles(this.player.x, this.player.y, '#4ade80', 35);
@@ -537,6 +537,21 @@ export class Engine {
     update(dt) {
         if (this.isGameOver) return;
 
+        // Smooth FPS calculation every 0.4s to prevent UI flickering/vibration
+        this.fpsTimer += dt;
+        this.fpsFrameCounter++;
+        if (this.fpsTimer >= 0.4) {
+            this.currentFps = Math.round(this.fpsFrameCounter / this.fpsTimer);
+            this.fpsFrameCounter = 0;
+            this.fpsTimer = 0;
+
+            const fpsElem = document.getElementById('fps-display');
+            if (fpsElem) fpsElem.innerText = this.currentFps;
+
+            const popupFpsElem = document.getElementById('popup-fps-val');
+            if (popupFpsElem) popupFpsElem.innerText = this.currentFps;
+        }
+
         // 1. Cooldown & Shield Timers
         for (const sKey in this.skills) {
             const skill = this.skills[sKey];
@@ -598,14 +613,13 @@ export class Engine {
         this.player.x = Math.max(30, Math.min(1250, this.player.x));
         this.player.y = Math.max(30, Math.min(690, this.player.y));
 
-        // 3. Update Monsters (Pathfinding towards player & Melee Combat)
+        // 3. Update Monsters
         for (const e of this.entities) {
             if (e.frozenTimer > 0) {
                 e.frozenTimer -= dt;
                 continue;
             }
 
-            // Pathfinding steer towards player
             const mdx = this.player.x - e.x;
             const mdy = this.player.y - e.y;
             const dist = Math.hypot(mdx, mdy);
@@ -614,9 +628,8 @@ export class Engine {
                 e.x += (mdx / dist) * e.speed * dt;
                 e.y += (mdy / dist) * e.speed * dt;
             } else {
-                // Melee attack player
                 if (e.attackCd <= 0) {
-                    e.attackCd = 1.2; // Attack every 1.2s
+                    e.attackCd = 1.2;
                     if (this.player.shieldActive) {
                         this.addFloater(this.player.x, this.player.y - 20, 'SHIELD ABSORBED!', '#818cf8');
                         this.spawnParticles(this.player.x, this.player.y, '#818cf8', 10);
@@ -644,7 +657,6 @@ export class Engine {
             p.y += p.vy * dt;
             p.life -= dt;
 
-            // Check collision with monsters
             for (const e of this.entities) {
                 const dist = Math.hypot(e.x - p.x, e.y - p.y);
                 if (dist < e.size / 2 + p.size) {
@@ -652,9 +664,8 @@ export class Engine {
                     this.addFloater(e.x, e.y - 20, `-${p.damage}`, '#facc15');
                     this.spawnParticles(e.x, e.y, p.color, 12);
                     this.playAudioSynth('hit');
-                    p.life = 0; // Destroy projectile
+                    p.life = 0;
 
-                    // Monster Defeated
                     if (e.hp <= 0) {
                         this.addFloater(e.x, e.y - 30, `+${e.xp} XP!`, '#4ade80');
                         this.spawnParticles(e.x, e.y, '#4ade80', 25);
@@ -662,7 +673,6 @@ export class Engine {
                         this.gainXp(e.xp);
                         this.playAudioSynth('levelup');
 
-                        // Respawn monster after death
                         e.hp = e.maxHp;
                         e.x = 180 + Math.random() * 900;
                         e.y = 120 + Math.random() * 480;
@@ -679,7 +689,6 @@ export class Engine {
             const loot = this.lootDrops[i];
             const dist = Math.hypot(this.player.x - loot.x, this.player.y - loot.y);
 
-            // Magnetic attraction when close
             if (dist < 120) {
                 loot.x += (this.player.x - loot.x) * 8 * dt;
                 loot.y += (this.player.y - loot.y) * 8 * dt;
@@ -715,7 +724,6 @@ export class Engine {
             if (f.life <= 0) this.floaters.splice(i, 1);
         }
 
-        // Update UI Status Bars
         this.updateHUD();
     }
 
@@ -729,7 +737,6 @@ export class Engine {
             this.player.hp = this.player.maxHp;
             this.player.mp = this.player.maxMp;
 
-            // Trigger Level Up Banner & Sound
             const banner = document.getElementById('level-up-banner');
             if (banner) {
                 banner.innerText = `✨ LEVEL UP! LEVEL ${this.player.level} REACHED ✨`;
@@ -899,9 +906,6 @@ export class Engine {
         this.time.update(currentTime);
         this.update(this.time.delta);
         this.render();
-
-        const fpsElem = document.getElementById('fps-display');
-        if (fpsElem) fpsElem.innerText = Math.round(1 / Math.max(0.001, this.time.delta));
 
         requestAnimationFrame((t) => this.loop(t));
     }

@@ -26,7 +26,7 @@
             </nav>
 
             <div id="header-stats">
-                <div class="stat-pill"><span class="stat-label">FPS:</span> <span id="fps-display">60</span></div>
+                <div class="stat-pill fps-pill"><span class="stat-label">FPS:</span> <span id="fps-display">60</span></div>
                 <div class="stat-pill"><span class="stat-label">Entities:</span> <span id="entity-count">12</span></div>
                 <div class="stat-pill"><span class="stat-label">Gold:</span> <span id="gold-display" style="color:#fbbf24;">💰 250</span></div>
             </div>
@@ -38,6 +38,9 @@
             <section id="game-view" class="view-panel active">
                 <div id="canvas-wrapper">
                     <canvas id="game-canvas" width="1280" height="720"></canvas>
+
+                    <!-- Floating Canvas FPS Badge -->
+                    <div id="fps-popup-badge">⚡ FPS: <span id="popup-fps-val">60</span></div>
                     
                     <!-- Damage Vignette Effect -->
                     <div id="damage-vignette"></div>

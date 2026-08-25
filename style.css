@@ -31,7 +31,7 @@ body {
     height: 100vh;
 }
 
-/* Header */
+/* Header - Fixed Height & No Reflow Vibration */
 #game-header {
     height: 60px;
     background: var(--bg-panel);
@@ -48,6 +48,7 @@ body {
     display: flex;
     align-items: center;
     gap: 10px;
+    flex-shrink: 0;
 }
 
 .logo-title {
@@ -73,7 +74,7 @@ body {
     color: var(--success-color);
 }
 
-#header-nav { display: flex; gap: 8px; }
+#header-nav { display: flex; gap: 8px; flex-shrink: 0; }
 
 .nav-btn {
     background: transparent;
@@ -90,9 +91,31 @@ body {
 .nav-btn:hover { color: var(--text-primary); background: rgba(255, 255, 255, 0.08); }
 .nav-btn.active { background: var(--primary-color); color: #fff; border-color: var(--primary-hover); box-shadow: 0 0 12px rgba(99, 102, 241, 0.4); }
 
-#header-stats { display: flex; gap: 12px; }
-.stat-pill { background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border-color); padding: 4px 12px; border-radius: 6px; font-size: 0.85rem; }
-.stat-label { color: var(--text-secondary); margin-right: 4px; }
+/* Header Stats - Fixed Width & Tabular Numbers to Prevent Header Jitter */
+#header-stats { display: flex; gap: 12px; flex-shrink: 0; }
+.stat-pill {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border-color);
+    padding: 4px 12px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+.fps-pill {
+    min-width: 82px;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#fps-display {
+    display: inline-block;
+    min-width: 24px;
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+}
 
 /* Workspace & View Panels */
 #workspace { flex: 1; position: relative; }
@@ -133,6 +156,24 @@ body {
     backdrop-filter: blur(10px);
 }
 #controls-hint strong { color: var(--accent-color); }
+
+/* Floating FPS Popup Badge on Canvas Top Right */
+#fps-popup-badge {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: rgba(15, 23, 42, 0.85);
+    border: 1px solid var(--border-color);
+    padding: 6px 14px;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--accent-color);
+    backdrop-filter: blur(10px);
+    pointer-events: auto;
+    font-variant-numeric: tabular-nums;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
 
 /* Action Bar with Cooldown UI */
 #action-bar { pointer-events: auto; display: flex; gap: 12px; margin: 0 auto 20px auto; background: var(--bg-panel); padding: 10px 16px; border-radius: 18px; border: 1px solid var(--border-color); backdrop-filter: blur(12px); }
