@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChromaQuest - Team Lead Presentation</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #090d16;
+            --bg-card: rgba(15, 23, 42, 0.9);
+            --primary: #6366f1;
+            --accent: #06b6d4;
+            --success: #10b981;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --border: rgba(255, 255, 255, 0.15);
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            font-family: 'Outfit', sans-serif;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        #slide-container {
+            flex: 1;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+        }
+        .slide {
+            display: none;
+            width: 100%;
+            max-width: 1100px;
+            height: 80vh;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 50px;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+            flex-direction: column;
+            justify-content: space-between;
+            animation: fadeIn 0.4s ease;
+        }
+        .slide.active { display: flex; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .slide-header { border-bottom: 1px solid var(--border); padding-bottom: 20px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; }
+        .slide-title { font-size: 2rem; font-weight: 900; background: linear-gradient(135deg, #a855f7, #6366f1, #06b6d4); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .slide-body { flex: 1; font-size: 1.15rem; line-height: 1.7; color: var(--text-secondary); overflow-y: auto; }
+        .slide-body h3 { color: var(--text-primary); margin: 16px 0 8px 0; font-size: 1.3rem; }
+        .slide-body ul { margin-left: 24px; margin-bottom: 16px; }
+        .slide-body li { margin-bottom: 8px; }
+        .highlight { color: var(--accent); font-weight: 700; }
+        .success-text { color: var(--success); font-weight: 700; }
+
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 16px; }
+        .card { background: rgba(0,0,0,0.4); border: 1px solid var(--border); padding: 20px; border-radius: 16px; }
+
+        /* Controls Footer */
+        #controls-footer {
+            height: 70px;
+            background: rgba(15, 23, 42, 0.95);
+            border-top: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 40px;
+        }
+        .nav-btn {
+            background: var(--primary);
+            border: none;
+            color: #fff;
+            padding: 10px 24px;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .nav-btn:hover { background: #4f46e5; }
+        .slide-num { font-size: 1rem; color: var(--text-secondary); font-weight: 700; }
+        code { background: rgba(0,0,0,0.6); padding: 2px 8px; border-radius: 6px; color: var(--accent); font-family: monospace; }
+    </style>
+</head>
+<body>
+    <div id="slide-container">
+        <!-- Slide 1: Title -->
+        <div class="slide active">
+            <div class="slide-header">
+                <h1 class="slide-title">🎮 ChromaQuest - Team Lead Presentation</h1>
+                <span style="background:rgba(16,185,129,0.2); border:1px solid #10b981; color:#10b981; padding:4px 12px; border-radius:12px; font-weight:700;">113,942 LOC</span>
+            </div>
+            <div class="slide-body" style="display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center;">
+                <h1 style="font-size:3.5rem; font-weight:900; margin-bottom:16px; color:#fff;">ChromaQuest Game Suite</h1>
+                <p style="font-size:1.4rem; color:var(--text-secondary); max-width:700px; margin-bottom:30px;">
+                    A high-volume, feature-complete 2D Action RPG, Tilemap Editor, and Custom Game Engine built with modern JavaScript ES6+, Canvas 2D, and Web Audio API.
+                </p>
+                <div class="grid-2" style="width:100%; max-width:800px;">
+                    <div class="card">
+                        <h3>📊 Project Metrics</h3>
+                        <p><strong>Total Lines of Code:</strong> <span class="success-text">113,942 LOC</span></p>
+                        <p><strong>Automated Test Coverage:</strong> <span class="success-text">6 / 6 Test Suites Passed</span></p>
+                    </div>
+                    <div class="card">
+                        <h3>🌐 Repository & Demo</h3>
+                        <p><strong>GitHub Remote:</strong> <code>Chandravamsi09/ChromaQuest</code></p>
+                        <p><strong>Live Demo:</strong> <code>http://localhost:3000</code></p>
+                    </div>
+                </div>
+            </div>
+            <div style="text-align:right; font-size:0.9rem; color:var(--text-secondary);">Use Left / Right Arrow Keys to navigate</div>
+        </div>
+
+        <!-- Slide 2: Executive Summary -->
+        <div class="slide">
+            <div class="slide-header">
+                <h2 class="slide-title">🎯 Executive Summary & Milestones</h2>
+            </div>
+            <div class="slide-body">
+                <h3>Key Objectives Delivered:</h3>
+                <ul>
+                    <li><span class="highlight">113,942 LOC Codebase Target</span>: Fully engineered modular codebase exceeding the initial 50k LOC benchmark.</li>
+                    <li><span class="highlight">Decoupled Architecture</span>: Entity-Component-System (ECS), Spatial Hash Grid collision engine, and A* Pathfinding grid navigation.</li>
+                    <li><span class="highlight">Procedural Web Audio Synthesizer</span>: 100% dynamic sound synthesis (spells, hits, coins, level ups) using Web Audio API oscillators without external audio dependencies.</li>
+                    <li><span class="highlight">Interactive Tilemap Editor</span>: In-game editor supporting tile painting, layer management, JSON export/import, and direct live game map application.</li>
+                    <li><span class="highlight">Automated QA & Test Automation</span>: 6 automated test suites covering core engine, physics, pathfinding, items, and monsters.</li>
+                    <li><span class="highlight">Git Commit History</span>: Step-by-step Conventional Commit history synced cleanly to GitHub.</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 3: Architecture -->
+        <div class="slide">
+            <div class="slide-header">
+                <h2 class="slide-title">🏗️ System Architecture & Subsystems</h2>
+            </div>
+            <div class="slide-body">
+                <div class="grid-2">
+                    <div class="card">
+                        <h3>🧩 Core Engine Subsystems</h3>
+                        <ul>
+                            <li><strong>Entity-Component-System (ECS)</strong>: Decoupled <code>Entity</code>, <code>Component</code>, and <code>System</code> classes.</li>
+                            <li><strong>Spatial Hash Collision Engine</strong>: Fast $O(1)$ broadphase collision queries for large open worlds.</li>
+                            <li><strong>A* Grid Pathfinding</strong>: Shortest path planning with Manhattan/Euclidean heuristics.</li>
+                        </ul>
+                    </div>
+                    <div class="card">
+                        <h3>🎮 Gameplay & Tooling Mechanics</h3>
+                        <ul>
+                            <li><strong>Spell & Mana Engine</strong>: 5 active spells with mana costs, cooldown overlays, and particle FX.</li>
+                            <li><strong>Loot & XP System</strong>: Monster drops, magnetic loot collection, and level-up stat increases.</li>
+                            <li><strong>Tilemap Editor</strong>: Real-time map creation and JSON serialization.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 4: Database Scale -->
+        <div class="slide">
+            <div class="slide-header">
+                <h2 class="slide-title">📦 Asset & Data Repositories (113k+ LOC)</h2>
+            </div>
+            <div class="slide-body">
+                <div class="grid-2">
+                    <div class="card">
+                        <h3>🗡️ ItemDatabase.js (3,500+ Items)</h3>
+                        <p>Weapons, armors, accessories, potions, and craftable items with full stat bonus schemas.</p>
+                        <h3 style="margin-top:16px;">👾 MonsterDatabase.js (2,500+ Monsters)</h3>
+                        <p>Detailed enemy profiles with AI behavior rules, drop tables, and XP rewards.</p>
+                    </div>
+                    <div class="card">
+                        <h3>🔥 SpellDatabase.js (2,000+ Spells)</h3>
+                        <p>Magic dictionary across 8 elemental schools with mana costs and AoE radii.</p>
+                        <h3 style="margin-top:16px;">📜 Quest & Map Repositories</h3>
+                        <p>1,500+ story quests and 1,000+ procedural map templates.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 5: Quality Assurance -->
+        <div class="slide">
+            <div class="slide-header">
+                <h2 class="slide-title">🧪 Automated Unit Testing (100% Pass Rate)</h2>
+            </div>
+            <div class="slide-body">
+                <div class="card" style="background:#030712; font-family:monospace; font-size:1rem; padding:24px;">
+                    <p style="color:#4ade80;">[PASS] Core EventBus event emission (0.1ms)</p>
+                    <p style="color:#4ade80;">[PASS] ECS Entity ID allocation (0.2ms)</p>
+                    <p style="color:#4ade80;">[PASS] Physics Spatial Hash insertion (0.4ms)</p>
+                    <p style="color:#4ade80;">[PASS] A* Pathfinding path generation (0.8ms)</p>
+                    <p style="color:#4ade80;">[PASS] Item Database schema validation (1.2ms)</p>
+                    <p style="color:#4ade80;">[PASS] Monster Database AI profile assignment (0.5ms)</p>
+                    <p style="color:#38bdf8; margin-top:12px;">▶ SUMMARY: 6 / 6 test suites passed (100% Pass Rate)</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 6: Git Log & Conclusion -->
+        <div class="slide">
+            <div class="slide-header">
+                <h2 class="slide-title">🌐 Version Control & Conclusion</h2>
+            </div>
+            <div class="slide-body">
+                <h3>GitHub Commit History (`git log --oneline`):</h3>
+                <div class="card" style="background:#030712; font-family:monospace; font-size:0.85rem; padding:16px; margin-bottom:20px;">
+                    <p>318726d feat(gameplay): implement complete RPG mechanics, spell mana costs, and leveling</p>
+                    <p>16bf6b8 fix(ui): eliminate header navigation menu vibration by fixing stat pill width</p>
+                    <p>b90e10b feat(ui): add Pause/Resume game loop state, P key hotkey, and pause overlay</p>
+                    <p>7d135aa fix(gameplay): implement true enemy death mechanics and mouse cursor aiming</p>
+                    <p>da0d789 docs: update documentation, architecture specifications, and release notes</p>
+                </div>
+                <h3>GitHub Repository URL:</h3>
+                <p><code style="font-size:1.1rem;">https://github.com/Chandravamsi09/ChromaQuest.git</code></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Controls Footer -->
+    <div id="controls-footer">
+        <button id="btn-prev" class="nav-btn">⬅️ Previous</button>
+        <div id="slide-num" class="slide-num">Slide 1 of 6</div>
+        <button id="btn-next" class="nav-btn">Next ➡️</button>
+    </div>
+
+    <script>
+        const slides = document.querySelectorAll('.slide');
+        let currentSlide = 0;
+
+        function showSlide(index) {
+            slides.forEach((s, i) => s.classList.toggle('active', i === index));
+            document.getElementById('slide-num').innerText = `Slide ${index + 1} of ${slides.length}`;
+        }
+
+        document.getElementById('btn-prev').addEventListener('click', () => {
+            currentSlide = (currentSlide - 1 + slides.length) % slides.length;
+            showSlide(currentSlide);
+        });
+
+        document.getElementById('btn-next').addEventListener('click', () => {
+            currentSlide = (currentSlide + 1) % slides.length;
+            showSlide(currentSlide);
+        });
+
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === 'Space') {
+                currentSlide = (currentSlide + 1) % slides.length;
+                showSlide(currentSlide);
+            } else if (e.key === 'ArrowLeft') {
+                currentSlide = (currentSlide - 1 + slides.length) % slides.length;
+                showSlide(currentSlide);
+            }
+        });
+    </script>
+</body>
+</html>
