@@ -28,6 +28,7 @@
             <div id="header-stats">
                 <div class="stat-pill"><span class="stat-label">FPS:</span> <span id="fps-display">60</span></div>
                 <div class="stat-pill"><span class="stat-label">Entities:</span> <span id="entity-count">12</span></div>
+                <div class="stat-pill"><span class="stat-label">Gold:</span> <span id="gold-display" style="color:#fbbf24;">💰 250</span></div>
             </div>
         </header>
 
@@ -38,39 +39,75 @@
                 <div id="canvas-wrapper">
                     <canvas id="game-canvas" width="1280" height="720"></canvas>
                     
+                    <!-- Damage Vignette Effect -->
+                    <div id="damage-vignette"></div>
+
+                    <!-- Level Up Banner -->
+                    <div id="level-up-banner" class="banner-hidden">✨ LEVEL UP! STATS INCREASED ✨</div>
+
                     <!-- HUD Overlays -->
                     <div id="hud-overlay">
                         <!-- Player Status Bars -->
                         <div id="player-bars">
                             <div class="bar-row">
                                 <span class="bar-label">HP</span>
-                                <div class="bar-track hp-track"><div id="hp-fill" class="bar-fill" style="width: 85%;"></div></div>
-                                <span id="hp-text" class="bar-text">850 / 1000</span>
+                                <div class="bar-track hp-track"><div id="hp-fill" class="bar-fill" style="width: 100%;"></div></div>
+                                <span id="hp-text" class="bar-text">1000 / 1000</span>
                             </div>
                             <div class="bar-row">
                                 <span class="bar-label">MP</span>
-                                <div class="bar-track mp-track"><div id="mp-fill" class="bar-fill" style="width: 70%;"></div></div>
-                                <span id="mp-text" class="bar-text">350 / 500</span>
+                                <div class="bar-track mp-track"><div id="mp-fill" class="bar-fill" style="width: 100%;"></div></div>
+                                <span id="mp-text" class="bar-text">500 / 500</span>
                             </div>
                             <div class="bar-row">
                                 <span class="bar-label">XP</span>
-                                <div class="bar-track xp-track"><div id="xp-fill" class="bar-fill" style="width: 45%;"></div></div>
-                                <span id="xp-text" class="bar-text">Lvl 12 (4500 / 10000)</span>
+                                <div class="bar-track xp-track"><div id="xp-fill" class="bar-fill" style="width: 0%;"></div></div>
+                                <span id="xp-text" class="bar-text">Lvl 12 (0 / 1000)</span>
                             </div>
                         </div>
 
-                        <!-- Instructions Prompt -->
+                        <!-- Controls Hint -->
                         <div id="controls-hint">
-                            🎮 Controls: <strong>WASD / Arrow Keys</strong> to Move | <strong>1-5</strong> Spells | Click canvas to attack
+                            🎮 Controls: <strong>WASD / Arrows</strong> to Move | <strong>Click</strong> to Shoot | <strong>Keys 1-5</strong> Spells
                         </div>
 
-                        <!-- Action Bar / Quickslots -->
+                        <!-- Action Bar / Quickslots with Cooldown & Mana overlays -->
                         <div id="action-bar">
-                            <button class="skill-slot" data-skill="fireball" title="1: Fireball"><span class="key-bind">1</span><span class="skill-icon">🔥</span></button>
-                            <button class="skill-slot" data-skill="frost" title="2: Frost Nova"><span class="key-bind">2</span><span class="skill-icon">❄️</span></button>
-                            <button class="skill-slot" data-skill="lightning" title="3: Lightning Strike"><span class="key-bind">3</span><span class="skill-icon">⚡</span></button>
-                            <button class="skill-slot" data-skill="shield" title="4: Aegis Shield"><span class="key-bind">4</span><span class="skill-icon">🛡️</span></button>
-                            <button class="skill-slot" data-skill="heal" title="5: Holy Heal"><span class="key-bind">5</span><span class="skill-icon">🧪</span></button>
+                            <button class="skill-slot" data-skill="fireball" id="slot-1">
+                                <span class="key-bind">1</span>
+                                <span class="skill-icon">🔥</span>
+                                <span class="mp-cost">25 MP</span>
+                                <div class="cd-overlay" id="cd-1"></div>
+                                <span class="cd-text" id="cd-text-1"></span>
+                            </button>
+                            <button class="skill-slot" data-skill="frost" id="slot-2">
+                                <span class="key-bind">2</span>
+                                <span class="skill-icon">❄️</span>
+                                <span class="mp-cost">40 MP</span>
+                                <div class="cd-overlay" id="cd-2"></div>
+                                <span class="cd-text" id="cd-text-2"></span>
+                            </button>
+                            <button class="skill-slot" data-skill="lightning" id="slot-3">
+                                <span class="key-bind">3</span>
+                                <span class="skill-icon">⚡</span>
+                                <span class="mp-cost">50 MP</span>
+                                <div class="cd-overlay" id="cd-3"></div>
+                                <span class="cd-text" id="cd-text-3"></span>
+                            </button>
+                            <button class="skill-slot" data-skill="shield" id="slot-4">
+                                <span class="key-bind">4</span>
+                                <span class="skill-icon">🛡️</span>
+                                <span class="mp-cost">30 MP</span>
+                                <div class="cd-overlay" id="cd-4"></div>
+                                <span class="cd-text" id="cd-text-4"></span>
+                            </button>
+                            <button class="skill-slot" data-skill="heal" id="slot-5">
+                                <span class="key-bind">5</span>
+                                <span class="skill-icon">🧪</span>
+                                <span class="mp-cost">60 MP</span>
+                                <div class="cd-overlay" id="cd-5"></div>
+                                <span class="cd-text" id="cd-text-5"></span>
+                            </button>
                         </div>
 
                         <!-- Menu Dock -->
@@ -92,13 +129,14 @@
                             <label>Selected Palette Tile:</label>
                             <div id="tile-palette">
                                 <div class="tile-option active" data-tile="1" style="background:#2d4a22;">🌿 Grass</div>
-                                <div class="tile-option" data-tile="2" style="background:#5a4d41;">🪨 Dirt</div>
-                                <div class="tile-option" data-tile="3" style="background:#1e3a8a;">🌊 Water</div>
-                                <div class="tile-option" data-tile="4" style="background:#4b5563;">🧱 Stone</div>
-                                <div class="tile-option" data-tile="5" style="background:#854d0e;">🪵 Wood</div>
+                                <div class="tile-option" data-tile="2" style="background:#5a4d41;">🪨 Dirt Path</div>
+                                <div class="tile-option" data-tile="3" style="background:#1e3a8a;">🌊 Water Pond</div>
+                                <div class="tile-option" data-tile="4" style="background:#4b5563;">🧱 Stone Wall</div>
+                                <div class="tile-option" data-tile="5" style="background:#854d0e;">🪵 Wooden Deck</div>
                             </div>
                         </div>
                         <div class="editor-group">
+                            <button id="btn-apply-map" class="action-btn primary-btn">🎮 Apply to Game Map</button>
                             <button id="btn-save-map" class="action-btn">💾 Export Map JSON</button>
                             <button id="btn-clear-map" class="action-btn danger-btn">🧹 Clear Canvas</button>
                         </div>
@@ -157,6 +195,15 @@
                     <button id="btn-close-modal" class="btn-close-modal">&times;</button>
                 </div>
                 <div id="modal-body-content" class="modal-body"></div>
+            </div>
+        </div>
+
+        <!-- Game Over Overlay -->
+        <div id="game-over-overlay" class="modal-hidden">
+            <div class="game-over-card">
+                <h1 style="color:#ef4444; font-size:2.5rem; margin-bottom:12px;">☠️ YOU HAVE PERISHED</h1>
+                <p style="color:#94a3b8; font-size:1.1rem; margin-bottom:24px;">Your hero fell in battle against the realm's monsters.</p>
+                <button id="btn-respawn" class="action-btn primary-btn" style="font-size:1.2rem; padding:14px 28px;">🔄 Respawn at Town</button>
             </div>
         </div>
     </div>
