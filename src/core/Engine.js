@@ -6,6 +6,7 @@ export class Engine {
         this.time = new Time();
         this.eventBus = new EventBus();
         this.running = false;
+        this.isPaused = false;
 
         // Player Attributes
         this.player = {
@@ -46,12 +47,12 @@ export class Engine {
         this.projectiles = [];
         this.particles = [];
         this.lootDrops = [];
-        this.floaters = []; // Floating combat text
+        this.floaters = [];
         
         // Key State
         this.keys = {};
         
-        // Map Grid (40x23 tiles)
+        // Map Grid
         this.cols = 40;
         this.rows = 23;
         this.tileSize = 32;
@@ -59,7 +60,7 @@ export class Engine {
         this.editorGrid = [];
         this.editorTile = 1;
 
-        // Web Audio Synthesizer Context
+        // Audio Context
         this.audioCtx = null;
 
         // State Flags
@@ -138,11 +139,18 @@ export class Engine {
         window.addEventListener('keydown', (e) => {
             this.keys[e.code] = true;
 
-            if (e.key === '1') this.castSpell('fireball');
-            if (e.key === '2') this.castSpell('frost');
-            if (e.key === '3') this.castSpell('lightning');
-            if (e.key === '4') this.castSpell('shield');
-            if (e.key === '5') this.castSpell('heal');
+            // Key 'P' toggles Pause / Resume
+            if (e.code === 'KeyP') {
+                this.togglePause();
+            }
+
+            if (!this.isPaused && !this.isGameOver) {
+                if (e.key === '1') this.castSpell('fireball');
+                if (e.key === '2') this.castSpell('frost');
+                if (e.key === '3') this.castSpell('lightning');
+                if (e.key === '4') this.castSpell('shield');
+                if (e.key === '5') this.castSpell('heal');
+            }
         });
 
         window.addEventListener('keyup', (e) => {
@@ -152,12 +160,29 @@ export class Engine {
         const canvas = document.getElementById('game-canvas');
         if (canvas) {
             canvas.addEventListener('click', (e) => {
-                if (this.isGameOver) return;
+                if (this.isGameOver || this.isPaused) return;
                 const rect = canvas.getBoundingClientRect();
                 const clickX = e.clientX - rect.left;
                 const clickY = e.clientY - rect.top;
                 this.shootBasicAttack(clickX, clickY);
             });
+        }
+    }
+
+    togglePause() {
+        this.isPaused = !this.isPaused;
+        const overlay = document.getElementById('pause-overlay');
+        const headerBtn = document.getElementById('btn-pause-header');
+        const dockBtn = document.getElementById('btn-pause-dock');
+
+        if (this.isPaused) {
+            if (overlay) overlay.classList.remove('modal-hidden');
+            if (headerBtn) headerBtn.innerText = '▶️ Resume';
+            if (dockBtn) dockBtn.innerText = '▶️';
+        } else {
+            if (overlay) overlay.classList.add('modal-hidden');
+            if (headerBtn) headerBtn.innerText = '⏸️ Pause';
+            if (dockBtn) dockBtn.innerText = '⏸️';
         }
     }
 
@@ -181,26 +206,22 @@ export class Engine {
     }
 
     castSpell(skillName) {
-        if (this.isGameOver) return;
+        if (this.isGameOver || this.isPaused) return;
         const skill = this.skills[skillName];
         if (!skill) return;
 
-        // Check Cooldown
         if (skill.currentCd > 0) return;
 
-        // Check Mana Cost
         if (this.player.mp < skill.cost) {
             this.addFloater(this.player.x, this.player.y - 30, 'NO MANA!', '#ef4444');
             this.playAudioSynth('error');
             return;
         }
 
-        // Consume Mana & Trigger Cooldown
         this.player.mp -= skill.cost;
         skill.currentCd = skill.cd;
         this.playAudioSynth(skillName);
 
-        // Execute Spell Logic & Visual FX
         if (skillName === 'fireball') {
             const angles = [-0.2, 0, 0.2];
             for (const offsetAngle of angles) {
@@ -358,6 +379,16 @@ export class Engine {
                 });
             }
         });
+
+        // Pause Button Click Listeners
+        const headerPauseBtn = document.getElementById('btn-pause-header');
+        if (headerPauseBtn) headerPauseBtn.addEventListener('click', () => this.togglePause());
+
+        const dockPauseBtn = document.getElementById('btn-pause-dock');
+        if (dockPauseBtn) dockPauseBtn.addEventListener('click', () => this.togglePause());
+
+        const resumeGameBtn = document.getElementById('btn-resume-game');
+        if (resumeGameBtn) resumeGameBtn.addEventListener('click', () => this.togglePause());
 
         // Skill Slots Click Handlers
         document.querySelectorAll('.skill-slot').forEach(slot => {
@@ -535,9 +566,9 @@ export class Engine {
     }
 
     update(dt) {
-        if (this.isGameOver) return;
+        if (this.isGameOver || this.isPaused) return;
 
-        // Smooth FPS calculation every 0.4s to prevent UI flickering/vibration
+        // Smooth FPS calculation
         this.fpsTimer += dt;
         this.fpsFrameCounter++;
         if (this.fpsTimer >= 0.4) {
@@ -558,7 +589,6 @@ export class Engine {
             if (skill.currentCd > 0) {
                 skill.currentCd = Math.max(0, skill.currentCd - dt);
             }
-            // Update Cooldown UI
             const cdOverlay = document.getElementById(`cd-${skill.slot}`);
             const cdText = document.getElementById(`cd-text-${skill.slot}`);
             const slotElem = document.getElementById(`slot-${skill.slot}`);
@@ -573,7 +603,6 @@ export class Engine {
                     cdText.innerText = '';
                 }
 
-                // Check Out of Mana styling
                 if (this.player.mp < skill.cost) {
                     slotElem.classList.add('oom');
                 } else {
@@ -582,7 +611,6 @@ export class Engine {
             }
         }
 
-        // Shield Timer
         if (this.player.shieldActive) {
             this.player.shieldTimer -= dt;
             if (this.player.shieldTimer <= 0) {
@@ -590,7 +618,6 @@ export class Engine {
             }
         }
 
-        // Passive Mana Regeneration (+15 MP/sec)
         if (this.player.mp < this.player.maxMp) {
             this.player.mp = Math.min(this.player.maxMp, this.player.mp + 15 * dt);
         }
@@ -650,7 +677,7 @@ export class Engine {
             if (e.attackCd > 0) e.attackCd -= dt;
         }
 
-        // 4. Update Projectiles & Hit Collisions
+        // 4. Update Projectiles
         for (let i = this.projectiles.length - 1; i >= 0; i--) {
             const p = this.projectiles[i];
             p.x += p.vx * dt;
@@ -684,7 +711,7 @@ export class Engine {
             if (p.life <= 0) this.projectiles.splice(i, 1);
         }
 
-        // 5. Update Loot Collection
+        // 5. Update Loot
         for (let i = this.lootDrops.length - 1; i >= 0; i--) {
             const loot = this.lootDrops[i];
             const dist = Math.hypot(this.player.x - loot.x, this.player.y - loot.y);

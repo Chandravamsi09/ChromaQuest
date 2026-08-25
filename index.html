@@ -26,6 +26,7 @@
             </nav>
 
             <div id="header-stats">
+                <button id="btn-pause-header" class="pause-header-btn" title="Pause/Resume Game (P)">⏸️ Pause</button>
                 <div class="stat-pill fps-pill"><span class="stat-label">FPS:</span> <span id="fps-display">60</span></div>
                 <div class="stat-pill"><span class="stat-label">Entities:</span> <span id="entity-count">12</span></div>
                 <div class="stat-pill"><span class="stat-label">Gold:</span> <span id="gold-display" style="color:#fbbf24;">💰 250</span></div>
@@ -47,6 +48,15 @@
 
                     <!-- Level Up Banner -->
                     <div id="level-up-banner" class="banner-hidden">✨ LEVEL UP! STATS INCREASED ✨</div>
+
+                    <!-- Pause Overlay Screen -->
+                    <div id="pause-overlay" class="modal-hidden">
+                        <div class="pause-card">
+                            <h1 style="color:#6366f1; font-size:2.4rem; margin-bottom:8px;">⏸️ GAME PAUSED</h1>
+                            <p style="color:#94a3b8; font-size:1rem; margin-bottom:20px;">Press <strong>P</strong> or click Resume to return to the realm.</p>
+                            <button id="btn-resume-game" class="action-btn primary-btn" style="font-size:1.1rem; padding:12px 28px;">▶️ Resume Game</button>
+                        </div>
+                    </div>
 
                     <!-- HUD Overlays -->
                     <div id="hud-overlay">
@@ -71,7 +81,7 @@
 
                         <!-- Controls Hint -->
                         <div id="controls-hint">
-                            🎮 Controls: <strong>WASD / Arrows</strong> to Move | <strong>Click</strong> to Shoot | <strong>Keys 1-5</strong> Spells
+                            🎮 Controls: <strong>WASD / Arrows</strong> to Move | <strong>Click</strong> to Shoot | <strong>P</strong> Pause | <strong>Keys 1-5</strong> Spells
                         </div>
 
                         <!-- Action Bar / Quickslots with Cooldown & Mana overlays -->
@@ -115,6 +125,7 @@
 
                         <!-- Menu Dock -->
                         <div id="menu-dock">
+                            <button id="btn-pause-dock" class="dock-btn" title="Pause / Resume (P)">⏸️</button>
                             <button id="btn-open-inventory" class="dock-btn" title="Inventory">🎒</button>
                             <button id="btn-open-skills" class="dock-btn" title="Skill Tree">📜</button>
                             <button id="btn-open-quests" class="dock-btn" title="Quest Log">🗡️</button>
